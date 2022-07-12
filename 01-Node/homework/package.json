@@ -1,10 +1,11 @@
 {
   "name": "01-node",
   "version": "1.0.0",
-  "description": "",
+  "description": "## Node Js Homework",
   "scripts": {
     "start": "nodemon bash.js"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "juan-alvarz",
+  "license": "ISC",
+  "main": "bash.js"
 }
