@@ -1,55 +1,75 @@
 var fs = require("fs");
-var request = require("request");
-
-console.log(fs);
+const { request } = require("http");
+/* var request = require("request");
+ */
 module.exports = {
-  date: function (params, done) {
+  /* date: function (params, done) {
+    done(Date());
+  }, */
+  date: (params, done) => {
     done(Date());
   },
 
-  pwd: function (params, done) {
+  pwd: (params, done) => {
     done(process.env.PWD);
   },
 
-  echo: function (params, done) {
+  echo: (params, done) => {
     done(params.join(" "));
   },
-  ls: function (params, done) {
-    fs.readdir(".", function (err, files) {
+
+  ls: (params, done) => {
+    fs.readdir(".", (err, files) => {
       if (err) throw err;
-      var output = "";
+      var output = "\n ";
       files.forEach((f) => {
-        output = output + f + " \n ";
+        output = output + f + "\n ";
       });
       done(output);
     });
   },
-  cat: function (arg, print) {
-    fs.readFile(arg[0], "uft8", function (err, data) {
+
+  cat: (args, done) => {
+    fs.readFile(args[0], "utf-8", (err, data) => {
       if (err) throw err;
-      print(data);
+      done(data);
     });
   },
 
-  head: function (params, print) {
+  head: (args, done) => {
+    fs.readFile(args[0], "utf-8", (err, data) => {
+      if (err) throw err;
+      let lines = data.split("\n").splice(0, 10).join("\n");
+      done(lines);
+    });
+  },
+
+  /*   head: function (params, print) {
     fs.readFile(params[0], "utf8", function (err, data) {
       if (err) throw err;
       let lines = data.split("\n").splice(0, 10).join("\n");
       print(lines);
     });
   },
-
-  tail: function (params, print) {
+ */
+  tail: (args, done) => {
+    fs.readFile(args[0], "utf-8", (err, data) => {
+      if (err) throw err;
+      let lines = data.split("\n").splice(0, 10).join("\n");
+      done(lines);
+    });
+  },
+  /*   tail: function (params, print) {
     fs.readFile(params[0], "utf8", function (err, data) {
       if (err) throw err;
       let lines = data.split("\n").splice(-10).join("\n");
       print(lines);
     });
-  },
-
-  curl: function (args, print) {
-    request(args[0], function (err, data) {
+  }, */
+  curl: (args, done) => {
+    request(args[0], (err, response, body) => {
       if (err) throw err;
+      done(body);
     });
   },
 };
