@@ -28,7 +28,7 @@ http
       res.writeHead(200, { "Content-type": "image/jpg" });
       var image = fs.readFileSync(__dirname + "/images/retrato_doge.jpg");
       res.end(image);
-    } else if (req.url === "/sexy_doge") {
+    } else if (re.url === "/sexy_doge") {
       res.writeHead(200, { "Content-type": "image/jpg" });
       var image = fs.readFileSync(__dirname + "/images/sexy_doge.jpg");
       res.end(image);
@@ -39,46 +39,9 @@ http
   })
   .listen(1337, "127.0.0.1");
 
-/* http
-  .createServer((req, res) => {
-    switch (req.url) {
-      case "/":
-        res.writeHead(200, { "Content-type": "text/plain" });
-        res.end("BIENVENIDO!");
-      case "/arcoiris_doge":
-        res.writeHead(200, { "Content-type": "image/jpg" });
-        let img = fs.readFileSync(__dirname + "/images/arcoiris_doge.jpg");
-        res.end(img);
+//
+var port = 1337;
 
-      case "/badboy_doge":
-        res.writeHead(200, { "Content-type": "image/jpg" });
-        let img2 = fs.readFileSync(__dirname + "/images/badboy_doge.jpg");
-        res.end(img2);
-
-      case "/code_doge":
-        res.writeHead(200, { "Content-type": "image/jpg" });
-        let img3 = fs.readFileSync(__dirname + "/images/code_doge.jpg");
-        res.end(img3);
-
-      case "/resaca_doge":
-        res.writeHead(200, { "Content-type": "image/jpg" });
-        let img4 = fs.readFileSync(__dirname + "/images/resaca_doge.jpg");
-        res.end(img4);
-
-      case "/retrato_doge":
-        res.writeHead(200, { "Content-type": "image/jpg" });
-        let img5 = fs.readFileSync(__dirname + "/images/retrato_doge.jpg");
-        res.end(img5);
-
-      case "sexy_doge":
-        res.writeHead(200, { "Content-type": "image/jpg" });
-        let img6 = fs.readFileSync(__dirname + "/images/sexy_doge.jpg");
-        res.end(img6);
-
-      default:
-        res.writeHead(418);
-        res.end();
-    }
-  })
-  .listen(1337, "127.0.0.1");
- */
+http
+  .createServer((req, res) => {})
+  .listen(port, "127.0.0.1", () => console.log("Listening on port: " + port));
