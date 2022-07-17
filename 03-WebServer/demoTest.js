@@ -1,1 +1,3 @@
-setInterval(() => {}, intervalInms);
+const fnSaludo = () => {
+  console.log("Hola Mundo!");
+};

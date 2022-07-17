@@ -1,4 +1,9 @@
 "use strict";
+
+const {
+  captureRejectionSymbol,
+} = require("@11ty/eleventy/src/Util/AsyncEventEmitter");
+
 /*----------------------------------------------------------------
 Promises Workshop: construye la libreria de ES6 promises, pledge.js
 ----------------------------------------------------------------*/
@@ -10,30 +15,29 @@ Promises Workshop: construye la libreria de ES6 promises, pledge.js
     this.executor(res, rej);
   }
 } */
-executor = (res, rej) => {
-  console.log("Hola Mundo!");
-};
-
 function $Promise(executor) {
-  if (typeof executor !== "function") {
+  if (typeof executor !== "function")
     throw new TypeError("executor must be a function");
-  }
-  //constructor
-  this._state = "pending";
-  this._value = undefined;
-  this._handleGroups = [];
 
-  //executor((data) => this._internalResolve(data), (reason) => this._internalReject(reason)
+  // estado inicial
+  this._state = "pending";
+  this._handlerGroups = [];
+
   executor(this._internalResolve.bind(this), this._internalReject.bind(this));
 }
 
-$Promise.prototype._internalResolve = (data) => {
+//resolve
+$Promise.prototype._internalResolve = function (data) {
   if (this._state === "pending") {
     this._state = "fulfilled";
     this._value = data;
+
+    this.callHandlers();
   }
 };
-$Promise.prototype._internalReject = (reason) => {
+
+//rejected
+$Promise.prototype._internalReject = function (reason) {
   if (this._state === "pending") {
     this._state = "rejected";
     this._value = reason;
@@ -41,7 +45,32 @@ $Promise.prototype._internalReject = (reason) => {
 };
 
 $Promise.prototype.then = function (succesCb, errorCb) {
-  this._handleGroups.push({ succesCb, errorCb });
+  let handlers = {
+    succesCb: typeof succesCb === "function" && succesCb,
+    errorCb: typeof errorCb === "function" && errorCb,
+  };
+  this._handlerGroups.push(handlers);
+
+  if (this._state !== "pending") this._callHandlers();
+};
+
+$Promise.prototype._callHandlers = function () {
+  while (this._handlerGroups.length) {
+    const currentHandler = this._handlerGroups.shift();
+    //this._handlerGroups = [{succesCb, errorCb},...]
+    //currentHandler = {succesCb, errorCb}
+
+    if (this._state === "fulfilled") {
+      currentHandler.succesCb && currentHandler.succesCb(this._value);
+    } else if (this._state === "rejected") {
+      currentHandler.errorCb && currentHandler.errorCb(this._value);
+    }
+  }
+};
+
+//catch es un then pero que solo maneja error handler
+$Promise.prototype.catch = function (errorHandler) {
+  this.then(null, errorHandler);
 };
 
 module.exports = $Promise;
