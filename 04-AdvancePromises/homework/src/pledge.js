@@ -41,6 +41,7 @@ $Promise.prototype._internalReject = function (reason) {
   if (this._state === "pending") {
     this._state = "rejected";
     this._value = reason;
+    this._callHandlers();
   }
 };
 
@@ -49,9 +50,14 @@ $Promise.prototype.then = function (succesCb, errorCb) {
     succesCb: typeof succesCb === "function" && succesCb,
     errorCb: typeof errorCb === "function" && errorCb,
   };
-  this._handlerGroups.push(handlers);
+
+  const downstreamPromise = new $Promise(() => {});
+
+  this._handlerGroups.push({ handlers, downstreamPromise });
 
   if (this._state !== "pending") this._callHandlers();
+
+  return downstreamPromise;
 };
 
 $Promise.prototype._callHandlers = function () {
@@ -60,10 +66,40 @@ $Promise.prototype._callHandlers = function () {
     //this._handlerGroups = [{succesCb, errorCb},...]
     //currentHandler = {succesCb, errorCb}
 
+    // FULFILLED
     if (this._state === "fulfilled") {
-      currentHandler.succesCb && currentHandler.succesCb(this._value);
+      if (!currentHandler) {
+        currentHandler.downstreamPromise._internalResolve(this._value);
+      } else {
+        try {
+          const result = currentHandler.succesCb(this._value);
+          if (result instanceof $Promise) {
+            result.then(
+              (value) => cb.downstreamPromise._internalResolve(value),
+              (err) => cb.downstreamPromise._internalReject(err)
+            );
+          } else {
+            currentHandler.downstreamPromise._internalResolve(this._value);
+          }
+        } catch (e) {
+          currentHandler.downstreamPromise._internalReject(e)
+        }
+      }
+
+
+
+      //REJECTED
     } else if (this._state === "rejected") {
-      currentHandler.errorCb && currentHandler.errorCb(this._value);
+      if(!currentHandler.errorCb){
+        currentHandler.downstreamPromise._internalReject(this._value)
+      } else {
+        try{
+          const result = currentHandler.errorCb(this._value)
+          if (result instanceof $Promise){
+            result.then()
+          }
+        } catch
+      }
     }
   }
 };
